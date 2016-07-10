@@ -1,0 +1,65 @@
+import java.io.IOException;
+import java.util.Arrays;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class cards 
+{
+	public static class DeckMapper extends Mapper<LongWritable,Text,LongWritable,Text>
+	{		
+		public void map(LongWritable key, Text value,Context context) throws IOException, InterruptedException
+		{
+			String line = value.toString();
+			context.write(new LongWritable(Long.parseLong(line.split(" ")[0])),new Text(line.split(" ")[1]));	
+		}
+	}
+	public static class DeckReducer extends Reducer<LongWritable,Text,LongWritable,Text>
+	{
+		public void reduce(LongWritable key,Iterable<Text>values, Context context) throws IOException,InterruptedException
+		{	
+			String result = "";
+			String finalresult = "";
+			String[] deck = {"club","spade","diamond","heart"};
+			boolean t;
+			for(Text value : values)
+			{
+				
+				result += value + " ";
+			}
+			for (int i=0;i<deck.length;i++)
+			{
+				t = result.contains(deck[i]);
+				if(!t)
+				{
+					finalresult += deck[i] + " ";
+					
+				}
+			}
+			context.write(key,new Text(finalresult));	
+		}
+	}
+	public static void main(String[] args) throws Exception  
+	{
+		Configuration conf = new Configuration();
+	    Job job = Job.getInstance(conf,"First Job");
+	    job.setJarByClass(cards.class);
+	    FileInputFormat.addInputPath(job, new Path(args[0]));
+	    FileOutputFormat.setOutputPath(job, new Path(args[1]));
+	    job.setMapperClass(DeckMapper.class);
+	    job.setReducerClass(DeckReducer.class);
+	    job.setMapOutputKeyClass(LongWritable.class);
+	    job.setMapOutputValueClass(Text.class);
+	    job.setOutputKeyClass(LongWritable.class);
+	    job.setOutputValueClass(Text.class);
+	    System.exit(job.waitForCompletion(true) ? 0 : 1);
+	}
+}

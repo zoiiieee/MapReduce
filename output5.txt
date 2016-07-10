@@ -1,0 +1,17 @@
+[ec2-user@ip-172-31-21-177 ~]$ cd output5
+[ec2-user@ip-172-31-21-177 output5]$ ls
+part-r-00000  _SUCCESS
+[ec2-user@ip-172-31-21-177 output5]$ vi part-r-00000
+1
+2       club
+3
+4
+5       diamond
+6
+7
+8
+9
+10      spade
+11
+12
+13      spade
